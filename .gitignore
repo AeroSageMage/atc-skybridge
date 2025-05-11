@@ -43,4 +43,5 @@ Thumbs.db
 # Project specific
 *.log
 simAPI_*.json
-simAPI_*.jsonl 
+simAPI_*.jsonl
+SayIntentionsAI/*.json
