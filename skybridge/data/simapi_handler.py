@@ -7,7 +7,7 @@ from datetime import datetime
 class SimAPIHandler:
     """Handles SimAPI file I/O operations"""
     
-    def __init__(self, base_path: str = None):
+    def __init__(self, base_path: str = None, clear_output_after_read: bool = True):
         if base_path is None:
             # If no base path provided, use the script's directory
             script_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -17,6 +17,7 @@ class SimAPIHandler:
             
         self.input_path = os.path.join(self.base_path, 'simAPI_input.json')
         self.output_path = os.path.join(self.base_path, 'simAPI_output.jsonl')
+        self.clear_output_after_read = clear_output_after_read
         
         # Create SimAPI directory if it doesn't exist
         os.makedirs(self.base_path, exist_ok=True)
@@ -31,85 +32,84 @@ class SimAPIHandler:
             print(f"Error writing SimAPI input: {e}")
             return False
     
-    def read_output_data(self) -> Optional[Dict[str, Any]]:
-        """Read and process the SimAPI output file"""
+    def read_output_data(self) -> Optional[list]:
+        """Read and process all SimAPI output requests, then clear the file if enabled."""
         if not os.path.exists(self.output_path):
             return None
-            
+        requests = []
         try:
             with open(self.output_path, 'r') as f:
                 for line in f:
                     try:
                         data = json.loads(line.strip())
                         setvar = data.get('setvar')
-                        
+                        req = None
                         if setvar == 'COM_RADIO_SET_HZ':
-                            # Convert Hz to MHz for COM1 active
-                            return {
+                            req = {
                                 'setvar': setvar,
                                 'radio': '1',
                                 'value': data['value']
                             }
                         elif setvar == 'COM2_RADIO_SET_HZ':
-                            # Convert Hz to MHz for COM2 active
-                            return {
+                            req = {
                                 'setvar': setvar,
                                 'radio': '2',
                                 'value': data['value']
                             }
                         elif setvar == 'COM_STBY_RADIO_SET_HZ':
-                            # Convert Hz to MHz for COM1 standby
-                            return {
+                            req = {
                                 'setvar': setvar,
                                 'radio': '1',
                                 'value': data['value'],
                                 'is_standby': True
                             }
                         elif setvar == 'COM2_STBY_RADIO_SET_HZ':
-                            # Convert Hz to MHz for COM2 standby
-                            return {
+                            req = {
                                 'setvar': setvar,
                                 'radio': '2',
                                 'value': data['value'],
                                 'is_standby': True
                             }
                         elif setvar == 'COM_RADIO_SWAP':
-                            return {
+                            req = {
                                 'setvar': setvar,
                                 'radio': '1'
                             }
                         elif setvar == 'COM2_RADIO_SWAP':
-                            return {
+                            req = {
                                 'setvar': setvar,
                                 'radio': '2'
                             }
                         elif setvar == 'XPNDR_SET':
-                            return {
+                            req = {
                                 'setvar': setvar,
                                 'value': int(data['value'])
                             }
                         elif setvar == 'AUDIO_PANEL_VOLUME_SET':
-                            return {
+                            req = {
                                 'setvar': setvar,
                                 'value': int(data['value'])
                             }
                         elif setvar == 'COM1_VOLUME_SET':
-                            return {
+                            req = {
                                 'setvar': setvar,
                                 'value': int(data['value'])
                             }
                         elif setvar == 'COM2_VOLUME_SET':
-                            return {
+                            req = {
                                 'setvar': setvar,
                                 'value': int(data['value'])
                             }
+                        if req is not None:
+                            requests.append(req)
                     except json.JSONDecodeError:
                         continue
-                        
-            # Clear the output file after reading
-            open(self.output_path, 'w').close()
+            # Clear the output file after reading if enabled
+            if self.clear_output_after_read:
+                open(self.output_path, 'w').close()
+            if requests:
+                return requests
             return None
-            
         except Exception as e:
             print(f"Error reading SimAPI output: {e}")
             return None

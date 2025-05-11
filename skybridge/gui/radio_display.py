@@ -269,6 +269,19 @@ class RadioDisplay:
         
         # Initialize changes list
         self.pending_changes = []
+
+        # Add auto-apply toggle button
+        self.auto_apply_changes = True
+        self.auto_apply_button = ttk.Button(
+            changes_frame,
+            text="Auto-Apply: ON",
+            command=self.toggle_auto_apply_changes
+        )
+        self.auto_apply_button.pack(side=tk.BOTTOM, anchor=tk.E, padx=5, pady=2)
+    
+    def toggle_auto_apply_changes(self):
+        self.auto_apply_changes = not self.auto_apply_changes
+        self.auto_apply_button.config(text=f"Auto-Apply: {'ON' if self.auto_apply_changes else 'OFF'}")
     
     def adjust_frequency(self, radio_num: int, adjustment_type: str, direction: int):
         """Adjust the frequency for the specified radio"""
@@ -357,7 +370,11 @@ class RadioDisplay:
                 # Check for SimAPI output requests
                 output_data = self.simapi_handler.read_output_data()
                 if output_data:
-                    self.handle_simapi_output(output_data)
+                    if isinstance(output_data, list):
+                        for request in output_data:
+                            self.handle_simapi_output(request)
+                    else:
+                        self.handle_simapi_output(output_data)
                 
                 time.sleep(0.75)  # Update every 750ms as per SimAPI docs
                 
@@ -369,63 +386,48 @@ class RadioDisplay:
         """Handle SimAPI output data and update the display accordingly"""
         setvar = output_data.get('setvar')
         
+        # Always add to pending changes
+        change = None
         if setvar in ['COM_RADIO_SET_HZ', 'COM2_RADIO_SET_HZ']:
-            # Convert Hz to MHz
             new_freq = float(output_data['value']) / 1000000
             radio_num = int(output_data['radio'])
-            
-            # Add to pending changes
             change = {
                 'type': 'radio',
                 'radio': radio_num,
                 'value': new_freq,
                 'description': f"Set COM{radio_num} active frequency to {new_freq:.3f} MHz"
             }
-            self.add_pending_change(change)
-            
-            # Update radio display
-            self.radio_manager.set_active_frequency(radio_num, new_freq)
-            if radio_num == 1:
-                self.active_label1.config(text=f"{new_freq:.3f}")
-            else:
-                self.active_label2.config(text=f"{new_freq:.3f}")
-        
+            if self.auto_apply_changes:
+                self.radio_manager.set_active_frequency(radio_num, new_freq)
+                if radio_num == 1:
+                    self.active_label1.config(text=f"{new_freq:.3f}")
+                else:
+                    self.active_label2.config(text=f"{new_freq:.3f}")
         elif setvar in ['COM_STBY_RADIO_SET_HZ', 'COM2_STBY_RADIO_SET_HZ']:
-            # Convert Hz to MHz
             new_freq = float(output_data['value']) / 1000000
             radio_num = int(output_data['radio'])
-            
-            # Add to pending changes
             change = {
                 'type': 'radio',
                 'radio': radio_num,
                 'value': new_freq,
                 'description': f"Set COM{radio_num} standby frequency to {new_freq:.3f} MHz"
             }
-            self.add_pending_change(change)
-            
-            # Update radio display
-            if radio_num == 1:
-                self.radio_manager.standby_freq_1 = new_freq
-                self.standby_label1.config(text=f"{new_freq:.3f}")
-            else:
-                self.radio_manager.standby_freq_2 = new_freq
-                self.standby_label2.config(text=f"{new_freq:.3f}")
-        
+            if self.auto_apply_changes:
+                if radio_num == 1:
+                    self.radio_manager.standby_freq_1 = new_freq
+                    self.standby_label1.config(text=f"{new_freq:.3f}")
+                else:
+                    self.radio_manager.standby_freq_2 = new_freq
+                    self.standby_label2.config(text=f"{new_freq:.3f}")
         elif setvar in ['COM_RADIO_SWAP', 'COM2_RADIO_SWAP']:
             radio_num = int(output_data['radio'])
-            
-            # Add to pending changes
             change = {
                 'type': 'radio_swap',
                 'radio': radio_num,
                 'description': f"Swap COM{radio_num} active and standby frequencies"
             }
-            self.add_pending_change(change)
-            
-            # Swap frequencies
-            self.swap_frequencies(radio_num)
-        
+            if self.auto_apply_changes:
+                self.swap_frequencies(radio_num)
         elif setvar == 'XPNDR_SET':
             new_code = int(output_data['value'])
             change = {
@@ -433,12 +435,9 @@ class RadioDisplay:
                 'value': new_code,
                 'description': f"Set transponder code to {new_code:04d}"
             }
-            self.add_pending_change(change)
-            
-            # Update transponder display
-            self.transponder_manager.code = new_code
-            self.transponder_label.config(text=f"{new_code:04d}")
-        
+            if self.auto_apply_changes:
+                self.transponder_manager.code = new_code
+                self.transponder_label.config(text=f"{new_code:04d}")
         elif setvar == 'AUDIO_PANEL_VOLUME_SET':
             volume = int(output_data['value'])
             change = {
@@ -446,11 +445,7 @@ class RadioDisplay:
                 'value': volume,
                 'description': f"Set intercom volume to {volume}%"
             }
-            self.add_pending_change(change)
-            
-            # Update volume (if we had a volume control in the UI)
-            # self.update_volume('intercom', volume)
-        
+            # No UI update for volume
         elif setvar == 'COM1_VOLUME_SET':
             volume = int(output_data['value'])
             change = {
@@ -458,11 +453,7 @@ class RadioDisplay:
                 'value': volume,
                 'description': f"Set COM1 volume to {volume}%"
             }
-            self.add_pending_change(change)
-            
-            # Update volume (if we had a volume control in the UI)
-            # self.update_volume('com1', volume)
-        
+            # No UI update for volume
         elif setvar == 'COM2_VOLUME_SET':
             volume = int(output_data['value'])
             change = {
@@ -470,10 +461,9 @@ class RadioDisplay:
                 'value': volume,
                 'description': f"Set COM2 volume to {volume}%"
             }
+            # No UI update for volume
+        if change:
             self.add_pending_change(change)
-            
-            # Update volume (if we had a volume control in the UI)
-            # self.update_volume('com2', volume)
     
     def add_pending_change(self, change: dict):
         """Add a pending change to the display"""
