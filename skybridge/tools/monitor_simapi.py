@@ -11,8 +11,10 @@ class SimAPIMonitor:
         self.root = root
         self.root.title("SayIntentions SimAPI Monitor")
         
-        # Set up file paths in local directory
-        self.base_path = os.path.join(os.getcwd(), 'external_atc_layer', 'SayIntentionsAI')
+        # Set up file paths relative to the tools directory
+        script_dir = os.path.dirname(os.path.abspath(__file__))  # Get tools directory
+        parent_dir = os.path.dirname(script_dir)  # Go up one level
+        self.base_path = os.path.join(parent_dir, 'SayIntentionsAI')
         self.input_path = os.path.join(self.base_path, 'simAPI_input.json')
         self.output_path = os.path.join(self.base_path, 'simAPI_output.jsonl')
         

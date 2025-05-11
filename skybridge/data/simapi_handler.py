@@ -7,13 +7,19 @@ from datetime import datetime
 class SimAPIHandler:
     """Handles SimAPI file I/O operations"""
     
-    def __init__(self, base_path: str):
-        self.base_path = base_path
-        self.input_path = os.path.join(base_path, 'simAPI_input.json')
-        self.output_path = os.path.join(base_path, 'simAPI_output.jsonl')
+    def __init__(self, base_path: str = None):
+        if base_path is None:
+            # If no base path provided, use the script's directory
+            script_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            self.base_path = os.path.join(script_dir, 'SayIntentionsAI')
+        else:
+            self.base_path = base_path
+            
+        self.input_path = os.path.join(self.base_path, 'simAPI_input.json')
+        self.output_path = os.path.join(self.base_path, 'simAPI_output.jsonl')
         
         # Create SimAPI directory if it doesn't exist
-        os.makedirs(base_path, exist_ok=True)
+        os.makedirs(self.base_path, exist_ok=True)
     
     def write_input_data(self, data: Dict[str, Any]):
         """Write data to the SimAPI input file"""

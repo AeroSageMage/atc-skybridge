@@ -4,10 +4,10 @@ import threading
 import time
 import os
 
-from skybridge.core.aircraft_state import AircraftStateManager
-from skybridge.core.radio_manager import RadioManager
-from skybridge.core.transponder_manager import TransponderManager
-from skybridge.data.simapi_handler import SimAPIHandler
+from core.aircraft_state import AircraftStateManager
+from core.radio_manager import RadioManager
+from core.transponder_manager import TransponderManager
+from data.simapi_handler import SimAPIHandler
 from tools.rewinger import UDPReceiver
 
 class RadioDisplay:
