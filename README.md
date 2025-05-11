@@ -1,27 +1,54 @@
 # SkyBridge
 
-SkyBridge is a bridge between flight simulators and SayIntentions.AI, providing real-time aircraft state management and radio/transponder control.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 
-## Features
+SkyBridge is a powerful bridge between flight simulators and SayIntentions.AI, providing real-time aircraft state management and radio/transponder control. It enables seamless integration between your flight simulator and SayIntentions.AI's advanced ATC capabilities.
 
-- Real-time aircraft state monitoring
-- Radio frequency management (COM1/COM2)
-- Transponder control
-- SayIntentions.AI integration
-- Modern GUI interface
+## 🌟 Features
 
-## Requirements
+- **Real-time Aircraft State Monitoring**
+  - Position tracking (latitude, longitude, altitude)
+  - Speed and heading information
+  - Aircraft configuration status
+  - Engine and system monitoring
 
-- Python 3.8+
-- tkinter
+- **Radio Management**
+  - COM1/COM2 frequency control
+  - Active/Standby frequency switching
+  - Radio state monitoring
+  - Frequency validation
+
+- **Transponder Control**
+  - Mode C/S support
+  - Squawk code management
+  - Transponder state monitoring
+
+- **SayIntentions.AI Integration**
+  - Automatic state synchronization
+  - Command processing
+  - Real-time feedback
+  - Error handling and recovery
+
+- **Modern GUI Interface**
+  - Clean, intuitive design
+  - Real-time status updates
+  - Visual feedback for changes
+  - Easy configuration
+
+## 📋 Requirements
+
+- Python 3.8 or higher
+- tkinter (usually comes with Python)
 - Flight simulator with UDP output capability
+- SayIntentions.AI account
 
-## Installation
+## 🚀 Installation
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/SkyBridge.git
-cd SkyBridge
+git clone https://github.com/AeroSageMage/atc-skybridge.git
+cd atc-skybridge
 ```
 
 2. Install dependencies:
@@ -29,24 +56,33 @@ cd SkyBridge
 pip install -r requirements.txt
 ```
 
-## Usage
+3. Install the package (optional):
+```bash
+pip install -e .
+```
+
+## 💻 Usage
 
 1. Start your flight simulator
-2. Run SkyBridge:
+2. Configure your simulator's UDP output:
+   - Port: 49002
+   - Format: JSON
+   - Update Rate: 20Hz
+
+3. Run SkyBridge:
 ```bash
 python -m skybridge.main
 ```
 
-3. Configure your simulator's UDP output to match SkyBridge's settings
 4. Use the GUI to monitor and control your aircraft's systems
 
-## Configuration
+## 🔧 Configuration
 
 ### Simulator UDP Settings
 
-- Port: 49002
-- Format: JSON
-- Update Rate: 20Hz
+- **Port**: 49002
+- **Format**: JSON
+- **Update Rate**: 20Hz
 
 ### SayIntentions.AI Integration
 
@@ -54,9 +90,7 @@ SkyBridge automatically creates and manages the necessary files for SayIntention
 - `simAPI_input.json`: Contains current aircraft state
 - `simAPI_output.jsonl`: Receives commands from SayIntentions.AI
 
-## Development
-
-### Project Structure
+## 🏗️ Project Structure
 
 ```
 skybridge/
@@ -73,14 +107,20 @@ skybridge/
 └── main.py         # Application entry point
 ```
 
-### Contributing
+## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## License
+## 📝 License
 
-MIT License - see LICENSE file for details 
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- SayIntentions.AI for their innovative ATC solution
+- The flight simulation community for their support and feedback
+- All contributors who help improve this project 
