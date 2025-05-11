@@ -8,7 +8,7 @@ from skybridge.core.aircraft_state import AircraftStateManager
 from skybridge.core.radio_manager import RadioManager
 from skybridge.core.transponder_manager import TransponderManager
 from skybridge.data.simapi_handler import SimAPIHandler
-from skybridge.tools.udp_receiver import UDPReceiver
+from tools.rewinger import UDPReceiver
 
 class RadioDisplay:
     def __init__(self, root):
